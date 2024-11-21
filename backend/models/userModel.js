@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const validator = require ('validator')
 
 const Schema = mongoose.Schema
 
@@ -18,6 +19,21 @@ const userSchema = new Schema({
 // static signup method
 // needs to be a regurlar function and not an arrow function so we can use the 'this' keyword inside of the function
 userSchema.statics.signup = async function (email, password) {
+
+    // validation
+    if (!email || !password){
+        throw Error('All fields must be filled')
+    }
+
+    if (!validator.isEmail(email)){
+        throw Error('Email is not valid')
+    }
+
+    // minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1
+    if(!validator.isStrongPassword(password)){
+        throw Error('Password not strong enough')
+    }
+
     // this keyword refers to the model
     const exists = await this.findOne({ email })
 
