@@ -13,7 +13,13 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    workoutPlan: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'WorkoutPlan'
+        }
+    ]
 })
 
 // static signup method
