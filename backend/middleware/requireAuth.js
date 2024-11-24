@@ -10,7 +10,7 @@ const requireAuth = async (req, res, next) => {
         return res.status(401).json({error: 'Authorization token required'})
     }
 
-    // getting the token part of the string
+    // getting the token part of the string. Bearer token
     const token = authorization.split(' ')[1]
 
     try {

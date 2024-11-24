@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 
 // get all workouts
 const getWorkouts = async (req, res) => {
+    // getting the user_id from the jwt token
     const workouts = await Workout.find({user_id: req.user._id}).sort({createdAt: -1})
 
     res.status(200).json(workouts)

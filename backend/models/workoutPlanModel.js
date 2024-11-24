@@ -9,16 +9,16 @@ const workoutPlanSchema = new Schema({
         ref: 'User',
         required: true
     },
+    plan_name: {
+        type: String,
+        required: true
+    },
     workouts: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Workout',
         }
-    ],
-    plan_name: {
-        type: String,
-        required: true
-    }
+    ]
 }, { timestamps: true });
 
 module.exports = mongoose.model('WorkoutPlan', workoutPlanSchema);
