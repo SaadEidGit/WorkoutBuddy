@@ -4,7 +4,9 @@ const {
     getWorkout,
     createWorkout,
     deleteWorkout,
-    updateWorkout
+    updateWorkout, 
+    updateSet,
+    deleteSet
 } = require('../controller/workoutController')
 const requireAuth = require('../middleware/requireAuth')
 
@@ -25,5 +27,11 @@ router.post('/', createWorkout)
 router.delete('/:id', deleteWorkout)
 
 router.patch('/:id', updateWorkout)
+
+// Update a specific set in a workout (via index)
+router.put('/:workoutId/sets/:setIndex', updateSet);
+
+// Delete a specific set from a workout (via index)
+router.delete('/:workoutId/sets/:setIndex', deleteSet);
 
 module.exports = router

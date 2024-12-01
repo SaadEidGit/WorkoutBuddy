@@ -1,14 +1,14 @@
 const mongoose = require('mongoose')
 const WorkoutPlan = require('../models/workoutPlanModel')
-const Workout = require('../models/workoutModel');
+const Workout = require('../models/workoutModel')
 
 const getWorkoutPlanNames = async (req, res) => {
     try {
-        const {user_id} = req.params
+        const {user_id} = req.query
 
         // Validate user_id
         if (!mongoose.Types.ObjectId.isValid(user_id)) {
-            return res.status(400).json({ error: 'Invalid user ID' });
+            return res.status(400).json({ error: 'Invalid user ID' })
         }
     
         const workoutPlans = await WorkoutPlan.find({ user_id }, 'plan_name' )
@@ -51,7 +51,7 @@ const createWorkoutPlan = async (req, res) => {
         }
 
         if (workouts && !Array.isArray(workouts)) {
-            return res.status(400).json({ error: 'Workouts must be an array of IDs' });
+            return res.status(400).json({ error: 'Workouts must be an array of IDs' })
         }
 
         const workoutPlan = new WorkoutPlan({
@@ -68,8 +68,37 @@ const createWorkoutPlan = async (req, res) => {
     }
 }
 
+const addWorkoutToPlan = async (req, res) => {
+    const { plan_id, workout_id } = req.params  // Get the plan_id and workout_id from the request params
+
+    try {
+        // Validate workout and workout plan existence
+        const workout = await Workout.findById(workout_id)
+        const workoutPlan = await WorkoutPlan.findById(plan_id)
+
+        if (!workout) {
+            return res.status(404).json({ error: 'Workout not found' })
+        }
+
+        if (!workoutPlan) {
+            return res.status(404).json({ error: 'Workout plan not found' })
+        }
+
+        // Add the workout ID to the workout plan's workouts array
+        workoutPlan.workouts.push(workout._id)
+
+        // Save the updated workout plan
+        await workoutPlan.save()
+
+        res.status(200).json(workoutPlan)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
 module.exports = {
     getWorkoutPlanNames,
     getWorkoutsFromPlan,
-    createWorkoutPlan
+    createWorkoutPlan,
+    addWorkoutToPlan
 }
