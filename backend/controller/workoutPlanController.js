@@ -1,104 +1,134 @@
-const mongoose = require('mongoose')
-const WorkoutPlan = require('../models/workoutPlanModel')
-const Workout = require('../models/workoutModel')
+const WorkoutPlan = require('../models/workoutPlanModel');
+const Workout = require('../models/workoutModel');
+const mongoose = require('mongoose');
 
-const getWorkoutPlanNames = async (req, res) => {
-    try {
-        const {user_id} = req.query
-
-        // Validate user_id
-        if (!mongoose.Types.ObjectId.isValid(user_id)) {
-            return res.status(400).json({ error: 'Invalid user ID' })
-        }
-    
-        const workoutPlans = await WorkoutPlan.find({ user_id }, 'plan_name' )
-        res.status(200).json(workoutPlans)
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
-
-const getWorkoutsFromPlan = async (req, res) => {
-    try {
-        const { plan_id } = req.params
-
-        // Validate plan_id
-        if (!mongoose.Types.ObjectId.isValid(plan_id)) {
-            return res.status(400).json({ error: 'Invalid workout plan ID' })
-        }
-
-        // Find the workout plan and populate the workouts
-        const workoutPlan = await WorkoutPlan.findById(plan_id).populate('workouts')
-
-        if (!workoutPlan) {
-            return res.status(404).json({ error: 'Workout plan not found' })
-        }
-
-        // Return the workouts from the plan
-        res.status(200).json(workoutPlan.workouts)
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
-
+// Create a new workout plan
 const createWorkoutPlan = async (req, res) => {
-    const { user_id, workouts, plan_name } = req.body
-    console.log('CreateWorkoutPlan')
+    const { plan_name, workouts } = req.body;
+    
     try {
-        // validate input
-        if (! user_id ){
-            return res.status(400).json({ error: 'User ID is required'})
-        }
+        // Create the workout plan with the user ID from the authenticated request
+        const workoutPlan = await WorkoutPlan.create({ 
+            user_id: req.user._id, 
+            plan_name, 
+            workouts: workouts || [] 
+        });
 
-        if (workouts && !Array.isArray(workouts)) {
-            return res.status(400).json({ error: 'Workouts must be an array of IDs' })
-        }
-
-        const workoutPlan = new WorkoutPlan({
-            user_id,
-            workouts,
-            plan_name
-        })
-
-        const savedPlan = await workoutPlan.save()
-        res.status(200).json(savedPlan)
+        res.status(200).json(workoutPlan);
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: 'Failed to create workoutplan' })
+        res.status(400).json({ error: error.message });
     }
-}
+};
 
-const addWorkoutToPlan = async (req, res) => {
-    const { plan_id, workout_id } = req.params  // Get the plan_id and workout_id from the request params
+// Get all workout plans for a user
+const getWorkoutPlans = async (req, res) => {
+    try {
+        const workoutPlans = await WorkoutPlan.find({ user_id: req.user._id })
+            .populate('workouts'); // Populate the workouts details
+
+        res.status(200).json(workoutPlans);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+// Get a single workout plan by ID
+const getWorkoutPlan = async (req, res) => {
+    const { id } = req.params;
+
+    // Check if the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: 'No such workout plan' });
+    }
 
     try {
-        // Validate workout and workout plan existence
-        const workout = await Workout.findById(workout_id)
-        const workoutPlan = await WorkoutPlan.findById(plan_id)
-
-        if (!workout) {
-            return res.status(404).json({ error: 'Workout not found' })
-        }
+        const workoutPlan = await WorkoutPlan.findById(id)
+            .populate('workouts');
 
         if (!workoutPlan) {
-            return res.status(404).json({ error: 'Workout plan not found' })
+            return res.status(404).json({ error: 'No such workout plan' });
         }
 
-        // Add the workout ID to the workout plan's workouts array
-        workoutPlan.workouts.push(workout._id)
+        // Ensure the workout plan belongs to the authenticated user
+        if (workoutPlan.user_id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
 
-        // Save the updated workout plan
-        await workoutPlan.save()
-
-        res.status(200).json(workoutPlan)
+        res.status(200).json(workoutPlan);
     } catch (error) {
-        res.status(500).json({ error: error.message })
+        res.status(400).json({ error: error.message });
     }
-}
+};
+
+// Update a workout plan
+const updateWorkoutPlan = async (req, res) => {
+    const { id } = req.params;
+    const { plan_name, workouts } = req.body;
+
+    // Check if the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: 'No such workout plan' });
+    }
+
+    try {
+        const workoutPlan = await WorkoutPlan.findById(id);
+
+        if (!workoutPlan) {
+            return res.status(404).json({ error: 'No such workout plan' });
+        }
+
+        // Ensure the workout plan belongs to the authenticated user
+        if (workoutPlan.user_id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+
+        // Update the workout plan
+        const updatedWorkoutPlan = await WorkoutPlan.findByIdAndUpdate(
+            id, 
+            { plan_name, workouts }, 
+            { new: true }
+        ).populate('workouts');
+
+        res.status(200).json(updatedWorkoutPlan);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+// Delete a workout plan
+const deleteWorkoutPlan = async (req, res) => {
+    const { id } = req.params;
+
+    // Check if the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: 'No such workout plan' });
+    }
+
+    try {
+        const workoutPlan = await WorkoutPlan.findById(id);
+
+        if (!workoutPlan) {
+            return res.status(404).json({ error: 'No such workout plan' });
+        }
+
+        // Ensure the workout plan belongs to the authenticated user
+        if (workoutPlan.user_id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+
+        // Delete the workout plan
+        await WorkoutPlan.findByIdAndDelete(id);
+
+        res.status(200).json({ message: 'Workout plan deleted successfully' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
 
 module.exports = {
-    getWorkoutPlanNames,
-    getWorkoutsFromPlan,
     createWorkoutPlan,
-    addWorkoutToPlan
-}
+    getWorkoutPlans,
+    getWorkoutPlan,
+    updateWorkoutPlan,
+    deleteWorkoutPlan
+};
