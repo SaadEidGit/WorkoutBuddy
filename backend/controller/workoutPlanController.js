@@ -119,7 +119,7 @@ const deleteWorkoutPlan = async (req, res) => {
         // Delete the workout plan
         await WorkoutPlan.findByIdAndDelete(id);
 
-        res.status(200).json({ message: 'Workout plan deleted successfully' });
+        res.status(200).json(workoutPlan);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
