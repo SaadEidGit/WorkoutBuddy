@@ -108,7 +108,6 @@ const updateWorkoutPlan = async (req, res) => {
                     { new: true }
                 ).populate('workouts')
         }
-
         res.status(200).json(updatedWorkoutPlan)
     } catch (error) {
         res.status(400).json({ error: error.message })
