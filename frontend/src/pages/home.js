@@ -30,7 +30,7 @@ const Home = () => {
             console.log(json)
             
             if (response.ok){
-                setPlanName(json[0].plan_name)
+                setPlanName(String(json[0].plan_name).charAt(0).toUpperCase() + String(json[0].plan_name).slice(1))
                 dispatch({type: 'SET_WORKOUTS', payload: json[0].workouts})
             }
         }

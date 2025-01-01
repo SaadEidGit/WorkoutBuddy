@@ -63,8 +63,8 @@ const WorkoutForm = ({ planId }) => {
         // 3. If everything is successful, update state and reset form
         setError(null)
         setTitle('')
-        setLoad('')
-        setReps('')
+        // setLoad('')
+        // setReps('')
         setEmptyFields([])
         workoutsDispatch({type: 'CREATE_WORKOUT', payload: workoutJson})
         workoutPlansDispatch({type: 'UPDATE_WORKOUT_PLAN', payload: planJson})
@@ -81,7 +81,7 @@ const WorkoutForm = ({ planId }) => {
                 value={title} 
                 className={emptyFields.includes('title') ? 'error' : ''}
             />
-            <label>Load (in kg):</label>
+            {/* <label>Load (in kg):</label>
             <input 
                 type="number" 
                 onChange={(e) => setLoad(e.target.value)} 
@@ -94,7 +94,7 @@ const WorkoutForm = ({ planId }) => {
                 onChange={(e) => setReps(e.target.value)} 
                 value={reps} 
                 className={emptyFields.includes('reps') ? 'error' : ''}
-            />
+            /> */}
 
             <button>Add Workout</button>
             {error && <div className="error">{error}</div>}

@@ -106,6 +106,8 @@ input.error {
 
 /* navbar */
 nav {
+  /* position: sticky;
+  top: 0; */
   display: flex;
   align-items: center;
 }
@@ -131,4 +133,42 @@ form.signup, form.login {
   padding: 20px;
   background: #fff;
   border-radius: 4px;
+}
+
+.set-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;  /* Reduced gap between button and text */
+  margin-left: 10px;
+}
+
+.delete-set-btn {
+  background: none;
+  border: none;
+  color: var(--error);
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.add-set-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.add-set-form input {
+  margin: 0;
+  width: 150px;  /* Or any width that fits your design */
+}
+
+.add-set-form button {
+  margin: 0;
+}
+
+.workout-titles {
+  margin-left: 10px;
 }
