@@ -1,0 +1,4 @@
+Docker cmds:
+- docker build -t workout-app-backend
+- docker run -p 5000:5000 workout-app-backend
+
