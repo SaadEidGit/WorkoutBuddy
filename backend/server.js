@@ -27,6 +27,7 @@ app.use((req, res, next) => {
 app.use('/api/workouts', workoutRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/workoutplans', workoutPlanRoutes)
+app.use('/api/workoutsessions', workoutPlanRoutes)
 
 //connect to db which returns a promise
 mongoose.connect(process.env.MONGO_URI)
