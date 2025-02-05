@@ -50,7 +50,33 @@ const deleteWorkoutSession = async (req, res) => {
 
 // Update Session
 const updateWorkoutSession = async (req, res) => {
+    const { id } = req.params
+    const {workouts} = req.body
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: 'No such workout sesion' })
+    }
+
+    try {
+        const workoutSession = await WorkoutSession.findById(id)
+
+        if (!workoutSession){
+            return res.status(404).json({ error: 'No such workout sesion' })
+        }
+
+        if (workoutSession.user_id.toString() !== req.user._id.toString()){
+            return res.status(403).json({ error: 'Not authorized' })
+        }
+
+        const updatedSession = await WorkoutSession.findByIdAndUpdate(
+            id,
+            {workouts: workouts}
+        ).populate('workouts')
+
+        return res.status(200).json(updatedSession)
+    } catch (error) {
+        res.status(400).json({error : error.message})
+    }
 }
 
 // Get Session using session id

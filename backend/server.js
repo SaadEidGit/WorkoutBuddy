@@ -8,6 +8,7 @@ const mongoose = require('mongoose')
 const workoutRoutes = require("./routes/workouts")
 const userRoutes = require('./routes/user')
 const workoutPlanRoutes = require('./routes/workplans')
+const workoutSessionRoutes = require('./routes/workoutSessions')
 
 // fires for every request that comes in
 // the next arg is a function that needs to be run at the end to execute another middleware
@@ -27,7 +28,7 @@ app.use((req, res, next) => {
 app.use('/api/workouts', workoutRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/workoutplans', workoutPlanRoutes)
-app.use('/api/workoutsessions', workoutPlanRoutes)
+app.use('/api/workoutsessions', workoutSessionRoutes)
 
 //connect to db which returns a promise
 mongoose.connect(process.env.MONGO_URI)
